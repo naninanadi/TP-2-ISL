@@ -1,11 +1,11 @@
-module controlador (
+module Controlador (
     input clk,
     input reset,
     input insere,
-    input [3:0] numero, // Supondo 4 bits para as condições (ajustar conforme necessário)
-    output reg led,
-    output reg [3:0] state  // Supondo 4 bits para representar os estados
-    output reg [6:0] diplay
+    input [3:0] numero, 
+    output reg [3:0] estado,
+    output reg [6:0] display,
+    output reg led
 );
 
     // Definir os estados com parâmetros
@@ -23,43 +23,182 @@ module controlador (
     localparam certo4_erro1 = 4'b1011;
     localparam certo5_erro1 = 4'b1100;
     localparam sucessoparcial = 4'b1110;
-    localparam falha = 4'b1111; // Exemplo de estado final
+    localparam falha = 4'b1111;
 
-    // Registro para estado atual
-    reg [3:0] current_state, next_state;
+    // Registro para estado atual e próximo
+    reg [3:0] estadoatual, proximoestado;
 
     // Lógica de transição de estados
     always @(posedge clk or posedge reset) begin
-        if (reset) 
-            current_state <= inicial; // Estado inicial
-        else 
-            current_state <= next_state;
+        if (reset) begin
+            estadoatual <= inicial;
+        end else begin
+            estadoatual <= proximoestado;
+        end
     end
+
+    
 
     // Lógica de próximo estado
     always @(*) begin
-        case (current_state)
-            inicial: begin
-                if (numero
-         == 4'b0000)
-                    next_state = LIGADO_0_IC;
-                else if (numero
-         == 4'b0001)
-                    next_state = certo1_erro0;
-                else
-                    next_state = inicial;
+        if (insere) begin
+            case (estadoatual)
+                inicial: begin
+
+                    led = 0; // Valor padrão
+
+                    if ((numero != 4'b0101) && (numero <= 9)) begin
+                        proximoestado = certo0_erro1;
+                        led = 1;
+                    end else if (numero == 4'b0101) begin
+                        proximoestado = 4'b0001;
+                    end else begin
+                        proximoestado = inicial;
+                    end
+                end
+                certo1_erro0: begin
+                    if ((numero != 4'b1000) && (numero <= 9)) begin
+                        proximoestado = certo1_erro1;
+                        led = 1;
+                    end else if (numero == 4'b1000) begin
+                        proximoestado = certo2_erro0;
+                    end else begin
+                        proximoestado = certo1_erro0;
+                    end
+                end
+                certo2_erro0: begin
+                    if ((numero != 4'b1001) && (numero <= 9)) begin
+                        proximoestado = certo2_erro1;
+                        led = 1;
+                    end else if (numero == 4'b1001) begin
+                        proximoestado = certo3_erro0;
+                    end else begin
+                        proximoestado = certo2_erro0;
+                    end
+                end
+                certo3_erro0: begin
+                    if ((numero != 4'b0010) && (numero <= 9)) begin
+                        proximoestado = certo3_erro1;
+                        led = 1;
+                    end else if (numero == 4'b0010) begin
+                        proximoestado = certo4_erro0;
+                    end else begin
+                        proximoestado = certo3_erro0;
+                    end
+                end
+                certo4_erro0: begin
+                    if ((numero != 4'b0000) && (numero <= 9)) begin
+                        proximoestado = certo4_erro1;
+                        led = 1;
+                    end else if (numero == 4'b0000)
+                        proximoestado = certo5_erro0;
+                    else begin
+                        proximoestado = certo4_erro0;
+                    end
+                end
+                certo5_erro0: begin
+                    if ((numero != 4'b0100) && (numero <= 9)) begin
+                        proximoestado = certo5_erro1;
+                        led = 1;
+                    end else if (numero == 4'b0100) begin
+                        proximoestado = sucessototal;
+                    end else begin
+                        proximoestado = certo5_erro0;
+                    end
+                end
+                sucessototal: begin
+                    proximoestado = sucessototal;
+                end
+                certo0_erro1: begin
+                    if((numero != 4'b0101) && (numero <= 9)) begin
+                        proximoestado = falha;
+                    end else if (numero == 4'b0101) begin
+                        proximoestado = certo1_erro1;
+                    end else begin
+                        proximoestado = certo0_erro1;
+                    end
+                end
+                certo1_erro1: begin
+                    if((numero != 4'b1000) && (numero <= 9)) begin
+                        proximoestado = falha;
+                    end else if (numero == 4'b1000) begin
+                        proximoestado = certo2_erro1;
+                    end else begin
+                        proximoestado = certo1_erro1;
+                    end
+                end
+                certo2_erro1: begin
+                    if((numero != 4'b0110) && (numero <= 9)) begin
+                        proximoestado = falha;
+                    end else if (numero == 4'b0110) begin
+                        proximoestado = certo3_erro1;
+                    end else begin
+                        proximoestado = certo2_erro1;
+                    end
+                end
+                certo3_erro1: begin
+                    if((numero != 4'b0010) && (numero <= 9)) begin
+                        proximoestado = falha;
+                    end else if (numero == 4'b0010) begin
+                        proximoestado = certo4_erro1;
+                    end else begin
+                        proximoestado = certo3_erro1;
+                    end
+                end
+                certo4_erro1: begin
+                    if((numero != 4'b0000) && (numero <= 9)) begin
+                        proximoestado = falha;
+                    end else if (numero == 4'b0000) begin
+                        proximoestado = certo5_erro1;
+                    end else begin
+                        proximoestado = certo4_erro1;
+                    end
+                end
+                certo5_erro1: begin
+                    if((numero != 4'b0100) && (numero <= 9)) begin
+                        proximoestado = falha;
+                    end else if (numero == 4'b0100) begin
+                        proximoestado = sucessoparcial;
+                    end else begin
+                        proximoestado = certo5_erro1;
+                    end
+                end
+                sucessoparcial: begin
+                    proximoestado = sucessoparcial;
+                end
+                falha: begin
+                    proximoestado = falha;
+                end
+                default: proximoestado = inicial;
+            endcase
+        end else begin
+            proximoestado = estadoatual; // Quando `insere` não é ativo, o estado não muda
+        end
+    end
+
+    // Lógica de saída
+    always @(*) begin
+        estado = estadoatual;
+        case (estado)
+            inicial: display = 7'b0000001;
+            sucessototal: display = 7'b0100100;
+            sucessoparcial: display = 7'b0011000;
+            falha: display = 7'b0111000;
+            default: begin
+                case (numero)
+                    4'b0000: display = 7'b0000001;
+                    4'b0001: display = 7'b1001111;
+                    4'b0010: display = 7'b0010010;
+                    4'b0011: display = 7'b0000110;
+                    4'b0100: display = 7'b1001100;
+                    4'b0101: display = 7'b0100100;
+                    4'b0110: display = 7'b0100000;
+                    4'b0111: display = 7'b0001111;
+                    4'b1000: display = 7'b0000000;
+                    4'b1001: display = 7'b0000010;
+                    default: display = 7'b1111110;
+                endcase
             end
-            // Continue com os outros estados e transições...
-            falha: begin
-                next_state = falha; // Estado final
-            end
-            default: next_state = inicial; // Estado padrão
         endcase
     end
-
-    // Saída do estado
-    always @(*) begin
-        state = current_state;
-    end
-
 endmodule
