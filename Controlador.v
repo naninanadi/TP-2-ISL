@@ -41,17 +41,19 @@ module Controlador (
 
     // Lógica de próximo estado
     always @(*) begin
+
+        
+
         if (insere) begin
             case (estadoatual)
                 inicial: begin
-
                     led = 0; // Valor padrão
-
                     if ((numero != 4'b0101) && (numero <= 9)) begin
                         proximoestado = certo0_erro1;
                         led = 1;
                     end else if (numero == 4'b0101) begin
-                        proximoestado = 4'b0001;
+                        proximoestado = certo1_erro0;
+                        led = 0;
                     end else begin
                         proximoestado = inicial;
                     end
@@ -62,6 +64,7 @@ module Controlador (
                         led = 1;
                     end else if (numero == 4'b1000) begin
                         proximoestado = certo2_erro0;
+                        led = 0;
                     end else begin
                         proximoestado = certo1_erro0;
                     end
@@ -72,6 +75,7 @@ module Controlador (
                         led = 1;
                     end else if (numero == 4'b1001) begin
                         proximoestado = certo3_erro0;
+                        led = 0;
                     end else begin
                         proximoestado = certo2_erro0;
                     end
@@ -82,6 +86,7 @@ module Controlador (
                         led = 1;
                     end else if (numero == 4'b0010) begin
                         proximoestado = certo4_erro0;
+                        led = 0;
                     end else begin
                         proximoestado = certo3_erro0;
                     end
@@ -90,9 +95,10 @@ module Controlador (
                     if ((numero != 4'b0000) && (numero <= 9)) begin
                         proximoestado = certo4_erro1;
                         led = 1;
-                    end else if (numero == 4'b0000)
+                    end else if (numero == 4'b0000) begin
                         proximoestado = certo5_erro0;
-                    else begin
+                        led = 0;
+                    end else begin
                         proximoestado = certo4_erro0;
                     end
                 end
@@ -102,6 +108,7 @@ module Controlador (
                         led = 1;
                     end else if (numero == 4'b0100) begin
                         proximoestado = sucessototal;
+                        led = 0;
                     end else begin
                         proximoestado = certo5_erro0;
                     end
@@ -204,6 +211,7 @@ module Controlador (
 
     // Debug (simulação)
 always @(posedge clk) begin
+    $display("Numero inserido: %d, led: %d", numero, led);
     if (reset) begin
         $display("Reset: estado = %b", estadoatual);
     end else begin
