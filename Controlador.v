@@ -201,4 +201,14 @@ module Controlador (
             end
         endcase
     end
+
+    // Debug (simulação)
+always @(posedge clk) begin
+    if (reset) begin
+        $display("Reset: estado = %b", estadoatual);
+    end else begin
+        $display("Estado Atual: %b, Proximo Estado: %b", estadoatual, proximoestado);
+    end
+end
+
 endmodule
